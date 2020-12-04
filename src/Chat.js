@@ -6,15 +6,18 @@ import AttachFileIcon from '@material-ui/icons/AttachFile';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import MicIcon from '@material-ui/icons/Mic';
-import axios from './axios';
+// import axios from './axios';
 import {useStateValue} from './StateProvider';
+import db from './firebase';
+import firebase from 'firebase';
+import Moment from 'react-moment';
 
 function Chat({messages}) {
 	
   const [input,setInput] =useState(" ");
   const [{user},dispatch]=useStateValue();
 	
-  const sendMessage= async(e)=>{
+ /* const sendMessage= async(e)=>{
 	 e.preventDefault();
 	 await  axios.post('/messages/new',{
 		    name:user.displayName,
@@ -23,7 +26,19 @@ function Chat({messages}) {
 		    received:true
 	    });
 	  setInput(" ");
-     }
+     } */
+  const sendMessage = (e)=>{
+	   e.preventDefault();
+	   db.collection("messages").add({
+              text: input,
+              username:user.displayName,
+              received:true,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(), 
+            });
+	  setInput(" ");
+  }
+  
+  console.log("MESSAGES FROM CHAT>>",messages);
 	
   return (
     <div className="chat">
@@ -31,7 +46,7 @@ function Chat({messages}) {
 	 <Avatar src={user?.photoURL}/>
 	<div className="chat_headerInfo">
 	 <h3>{user?.displayName}</h3>
-	 <p>{`Last seen at ...${user?.metadata?.lastSignInTime}`}</p>
+	 <p>Last seen at ...<Moment format="D MMM">{user?.metadata?.lastSignInTime}</Moment></p>
 	</div>
 	<div className="chat_headerRight">
 	        <IconButton>
@@ -46,11 +61,11 @@ function Chat({messages}) {
 	</div>
 	</div>
 	<div className="chat_body">
-	{messages.map(message=>(
+	{messages.map((message)=>(
 	<p className={`chat_message ${message.received && "chat_receiver"}`}>
-	<span className="chat_name">{message.name}</span>
-	{message.message}
-	<span className="chat_timestamp">{message.timestamp}</span>
+	<span className="chat_name">{message.username}</span>
+	{message.text}
+				<span className="chat_timestamp">{<Moment format="h:mm MMM D" unix>{message.timestamp?.seconds}</Moment> || 'Just now'}</span>
 	</p>
 	))}
 	</div>

@@ -2,24 +2,32 @@ import React,{useEffect,useState} from "react";
 import './App.css';
 import Sidebar from "./Sidebar";
 import Chat from "./Chat";
-import Pusher from "pusher-js";
-import axios from './axios';
+//import Pusher from "pusher-js";
+//import axios from './axios';
 import Login from './Login';
 import {useStateValue} from './StateProvider';
+import db from './firebase';
 
 function App() {
 	
 const [messages,setMessages]=useState([]);
 const [{user},dispatch]=useStateValue();
 	
- useEffect(()=>{
+/* useEffect(()=>{
 	axios.get('messages/sync')
 	 .then(response=>{
 		setMessages(response.data);
 	  });
+ },[]); */
+	
+useEffect(()=>{
+    db.collection("messages")
+	  .orderBy('timestamp','asc') 
+      .onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc)=>doc.data())));
+	console.log("FROM APP>>",messages);
  },[]);
 	
- useEffect(()=>{
+/* useEffect(()=>{
 	const pusher = new Pusher('bdda380e465474b93c9e', {
       cluster: 'ap2'
     });
@@ -32,7 +40,7 @@ const [{user},dispatch]=useStateValue();
 		 channel.unbind_all();
 		 channel.unsubscribe();
 	 };
- },[messages]);
+ },[messages]); */
 	
   return (
     <div className="app">

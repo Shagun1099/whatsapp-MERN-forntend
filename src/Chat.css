@@ -104,6 +104,16 @@
 	top:-12px;
 	font-size:x-small;
 }
+ .chat_footer{
+	position:sticky;
+	bottom:0;
+	background-color:#ededed;
+	}
+ .chat_header{
+	display:flex;
+	position:sticky;
+	top:0;
+}
 }
 
 
